@@ -154,11 +154,24 @@ selected_provider = st.sidebar.selectbox(
 )
 provider_info = AI_PROVIDERS[selected_provider]
 
+# Helper to fetch secrets from Streamlit Cloud Secrets or os.environ
+def get_secret(key: str, default: str = "") -> str:
+    try:
+        if hasattr(st, "secrets") and key in st.secrets:
+            return str(st.secrets[key])
+    except Exception:
+        pass
+    return os.environ.get(key, default)
+
 default_key = ""
 if selected_provider == "Groq (Free & Ultra-Fast)":
-    default_key = os.environ.get("GROQ_API_KEY", "")
+    default_key = get_secret("GROQ_API_KEY", "")
 elif selected_provider == "Google Gemini":
-    default_key = os.environ.get("GEMINI_API_KEY", "")
+    default_key = get_secret("GEMINI_API_KEY", "")
+elif selected_provider == "OpenRouter (All Models)":
+    default_key = get_secret("OPENROUTER_API_KEY", "")
+elif selected_provider == "OpenAI (GPT-4o Vision)":
+    default_key = get_secret("OPENAI_API_KEY", "")
 
 api_key_input = st.sidebar.text_input(
     f"{selected_provider.split(' ')[0]} API Key",
